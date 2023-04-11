@@ -24,14 +24,23 @@ class SignUpUser(CreateAPIView):
         user = User.objects.filter(username=username, email=email)
         if user.exists() and user[0].email == email:
             utils.send_email_with_confirmation_code(user[0])
-            return Response(request.data, status=status.HTTP_201_CREATED)
+            return Response(request.data, status=status.HTTP_200_OK)
         return self.create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
+        """After creation generate confirmation code and send by mail."""
         serializer.save()
         username = serializer.data.get('username')
         user = get_object_or_404(User, username=username)
         utils.send_email_with_confirmation_code(user)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data, status=status.HTTP_200_OK, headers=headers)
 
 
 @api_view(['POST'])
@@ -39,7 +48,7 @@ class SignUpUser(CreateAPIView):
 def receive_token(request):
     """Receive token."""
     serializer = serializers.TokenObtainSerializer(data=request.data)
-    serializer.is_valid()
+    serializer.is_valid(raise_exception=True)
     user = get_object_or_404(User, username=serializer.data.get('username'))
     token = RefreshToken.for_user(user)
     token_serializer = serializers.TokenSerializer(

@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
@@ -23,11 +25,22 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
 class TokenObtainSerializer(serializers.ModelSerializer):
     """Serializer for obtain token."""
-    confirmation_code = serializers.CharField(max_length=256)
+    confirmation_code = serializers.CharField(max_length=256, required=True)
 
     class Meta:
         fields = ('username', 'confirmation_code')
         model = User
+
+    def validate_username(self, value):
+        get_object_or_404(User, username=value)
+        return value
+
+    def validate_confirmation_code(self, value):
+        if not re.search(r"\S{6}-\S{32}", value):
+            raise serializers.ValidationError(
+                'Wrong format of confirmation_code.'
+            )
+        return value
 
     def validate(self, attrs):
         username = self.data.get('username')
