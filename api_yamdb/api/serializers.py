@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from . import utils
 
@@ -9,6 +8,7 @@ User = get_user_model()
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
+    """Serializer for signup user."""
     class Meta:
         fields = ('username', 'email')
         model = User
@@ -22,6 +22,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
 
 class TokenObtainSerializer(serializers.ModelSerializer):
+    """Serializer for obtain token."""
     confirmation_code = serializers.CharField(max_length=256)
 
     class Meta:
@@ -39,4 +40,5 @@ class TokenObtainSerializer(serializers.ModelSerializer):
 
 
 class TokenSerializer(serializers.Serializer):
+    """Serializer for token."""
     token = serializers.CharField()

@@ -1,11 +1,11 @@
-from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.generics import CreateAPIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework import status
-from django.views.decorators.csrf import csrf_exempt
 
 from . import serializers
 from . import utils
@@ -37,6 +37,7 @@ class SignUpUser(CreateAPIView):
 @api_view(['POST'])
 @csrf_exempt
 def receive_token(request):
+    """Receive token."""
     serializer = serializers.TokenObtainSerializer(data=request.data)
     serializer.is_valid()
     user = get_object_or_404(User, username=serializer.data.get('username'))
