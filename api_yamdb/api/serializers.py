@@ -10,14 +10,6 @@ from .mixins import UsernameValidationMixin
 User = get_user_model()
 
 
-class UserCreateSerializer(serializers.ModelSerializer,
-                           UsernameValidationMixin):
-    """Serializer for signup user."""
-    class Meta:
-        fields = ('username', 'email')
-        model = User
-
-
 class TokenObtainSerializer(serializers.Serializer):
     """Serializer for obtain token."""
     username = serializers.CharField(max_length=150, required=True)
@@ -26,11 +18,13 @@ class TokenObtainSerializer(serializers.Serializer):
     class Meta:
         fields = ('username', 'confirmation_code')
 
-    def validate_username(self, value):
+    @staticmethod
+    def validate_username(value):
         get_object_or_404(User, username=value)
         return value
 
-    def validate_confirmation_code(self, value):
+    @staticmethod
+    def validate_confirmation_code(value):
         if not re.search(r"\S{6}-\S{32}", value):
             raise serializers.ValidationError(
                 'Wrong format of confirmation_code.'
@@ -48,9 +42,12 @@ class TokenObtainSerializer(serializers.Serializer):
         return data
 
 
-class TokenSerializer(serializers.Serializer):
-    """Serializer for token."""
-    token = serializers.CharField()
+class UserCreateSerializer(serializers.ModelSerializer,
+                           UsernameValidationMixin):
+    """Serializer for signup user."""
+    class Meta:
+        fields = ('username', 'email')
+        model = User
 
 
 class UsersSerializer(serializers.ModelSerializer, UsernameValidationMixin):

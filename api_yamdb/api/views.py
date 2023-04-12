@@ -23,16 +23,16 @@ def create_user(request):
     """User creation and send confirmation code by mail."""
     username = request.data.get('username')
     email = request.data.get('email')
-    user = User.objects.filter(username=username, email=email)
-    if user.exists() and user[0].email == email:
-        utils.send_email_with_confirmation_code(user[0])
-        return Response(request.data, status=status.HTTP_200_OK)
-    serializer = serializers.UserCreateSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        utils.send_email_with_confirmation_code(user[0])
-        return Response(request.data, status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if not User.objects.filter(username=username, email=email).exists():
+        serializer = serializers.UserCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    user = get_object_or_404(User, username=username)
+    utils.send_email_with_confirmation_code(user)
+    return Response(request.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
