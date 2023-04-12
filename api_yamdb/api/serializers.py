@@ -6,9 +6,55 @@ from rest_framework import serializers
 
 from . import utils
 from .mixins import UsernameValidationMixin
-from reviews.models import Review
+from reviews.models import Review, Categories, Genre, Titles
 
 User = get_user_model()
+
+
+class CategorySerializer(serializers.ModelSerializer):
+
+    name = serializers.StringRelatedField()
+    slug = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='slug',
+    )
+
+    class Meta:
+        fields = '__all__'
+        model = Categories
+
+
+class GenreSerializer(serializers.ModelSerializer):
+
+    name = serializers.StringRelatedField()
+    slug = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='slug',
+    )
+
+    class Meta:
+        fields = '__all__'
+        model = Genre
+
+
+class GenreSerializer(serializers.ModelSerializer):
+
+    name = serializers.StringRelatedField()
+    slug = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='slug',
+    )
+
+    class Meta:
+        fields = '__all__'
+        model = Genre
+
+
+class TitleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = '__all__'
+        model = Titles
 
 
 class ReviewSerializer(serializers.ModelSerializer):
