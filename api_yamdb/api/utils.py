@@ -16,7 +16,7 @@ def send_email_with_confirmation_code(user):
     """Send message on User email with confirmation code."""
     token = get_confirmation_code(user)
     email_test = (
-        f'Dear Mr.{user.username},\n'
+        f'Dear Mr.{user.username.title()},\n\n'
         f'Your API token: {token}.\n\n'
         'Best regards, Administration.'
     )

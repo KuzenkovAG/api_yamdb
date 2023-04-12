@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
@@ -16,34 +18,21 @@ from . import utils
 User = get_user_model()
 
 
-class SignUpUser(CreateAPIView):
-    """Create new user, if user exist - sent confirmation_code to email."""
-    serializer_class = serializers.UserCreateSerializer
-    permission_classes = []
-
-    def post(self, request, *args, **kwargs):
-        username = request.data.get('username')
-        email = request.data.get('email')
-        user = User.objects.filter(username=username, email=email)
-        if user.exists() and user[0].email == email:
-            utils.send_email_with_confirmation_code(user[0])
-            return Response(request.data, status=status.HTTP_200_OK)
-        return self.create(request, *args, **kwargs)
-
-    def perform_create(self, serializer):
-        """After creation generate confirmation code and send by mail."""
+@api_view(['POST'])
+def create_user(request):
+    """User creation and send confirmation code by mail."""
+    username = request.data.get('username')
+    email = request.data.get('email')
+    user = User.objects.filter(username=username, email=email)
+    if user.exists() and user[0].email == email:
+        utils.send_email_with_confirmation_code(user[0])
+        return Response(request.data, status=status.HTTP_200_OK)
+    serializer = serializers.UserCreateSerializer(data=request.data)
+    if serializer.is_valid():
         serializer.save()
-        username = serializer.data.get('username')
-        user = get_object_or_404(User, username=username)
-        utils.send_email_with_confirmation_code(user)
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            serializer.data, status=status.HTTP_200_OK, headers=headers)
+        utils.send_email_with_confirmation_code(user[0])
+        return Response(request.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -51,14 +40,12 @@ class SignUpUser(CreateAPIView):
 def receive_token(request):
     """Receive token."""
     serializer = serializers.TokenObtainSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    user = get_object_or_404(User, username=serializer.data.get('username'))
-    token = RefreshToken.for_user(user)
-    token_serializer = serializers.TokenSerializer(
-        data={'token': str(token.access_token)}
-    )
-    token_serializer.is_valid()
-    return Response(token_serializer.data, status=status.HTTP_200_OK)
+    if serializer.is_valid():
+        user = get_object_or_404(User, username=request.data.get('username'))
+        token = RefreshToken.for_user(user)
+        json_data = json.dumps({'token': str(token.access_token)})
+        return Response(json_data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -71,6 +58,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class PersonalInformationView(RetrieveUpdateAPIView):
+    """Update personal information of User."""
     serializer_class = serializers.UsersSerializer
     permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
