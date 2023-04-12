@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from . import permissions
+# from . import permissions
 from . import serializers
 from . import utils
 
@@ -64,7 +64,7 @@ def receive_token(request):
 class UserViewSet(viewsets.ModelViewSet):
     """Viewset for User."""
     serializer_class = serializers.UsersSerializer
-    permission_classes = [IsAuthenticated & permissions.IsAdminPermission]
+    # permission_classes = [IsAuthenticated & permissions.IsAdminPermission]
     queryset = User.objects.all()
     pagination_class = PageNumberPagination
     lookup_field = 'username'
