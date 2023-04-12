@@ -24,8 +24,3 @@ class ReviewSerializer(serializers.ModelSerializer):
                 'Вы уже оставляли отзыв на это произведение'
             )
         return data
-
-    def validate_score(self, value):
-        if value < 1 or value > 10:
-            raise serializers.ValidationError('Нельзя ставить такое число!!')
-        return value
