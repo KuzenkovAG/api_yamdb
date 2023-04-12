@@ -6,6 +6,9 @@ from . import views
 
 router = SimpleRouter()
 router.register(r'users', views.UserViewSet, basename='Users')
+router.register(
+    r'titles/(?P<title_id>\d+)/reviews', views.ReviewViewSet, basename='reviews'
+)
 
 urlpatterns = [
     path('v1/auth/signup/', views.create_user, name='sign_up'),

@@ -7,15 +7,30 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from . import permissions
 from . import serializers
 from . import utils
+from reviews.models import Title
 
 User = get_user_model()
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+
+    serializer_class = serializers.ReviewSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        return title.reviews.all()
+
+    def perform_create(self, serializer):
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        serializer.save(author=self.request.user, title=title)
 
 
 @api_view(['POST'])
