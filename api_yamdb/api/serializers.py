@@ -1,7 +1,5 @@
 from rest_framework import serializers
 
-from rest_framework.validators import UniqueTogetherValidator
-
 from reviews.models import Review
 
 
@@ -15,13 +13,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = (
             'id', 'text', 'author', 'score', 'pub_date')
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=('author', 'title'),
-                message='Вы уже ставили отзыв на это произведение'
-            )
-        ]
 
     def validate(self, data):
         if not self.context.get('request').method == 'POST':
@@ -33,3 +24,8 @@ class ReviewSerializer(serializers.ModelSerializer):
                 'Вы уже оставляли отзыв на это произведение'
             )
         return data
+
+    def validate_score(self, value):
+        if value < 1 or value > 10:
+            raise serializers.ValidationError('Нельзя ставить такое число!!')
+        return value
