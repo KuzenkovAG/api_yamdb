@@ -15,7 +15,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from . import permissions
 from . import serializers
 from . import utils
-from reviews.models import Title, Categories, Genre, Titles
+from reviews.models import Categories, Genre, Titles
 
 
 User = get_user_model()
@@ -54,11 +54,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        title = get_object_or_404(Titles, id=self.kwargs.get('title_id'))
         return title.reviews.all()
 
     def perform_create(self, serializer):
-        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        title = get_object_or_404(Titles, id=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=title)
 
 
