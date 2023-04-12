@@ -1,16 +1,14 @@
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-
-account_activation_token = PasswordResetTokenGenerator()
+from django.contrib.auth.tokens import default_token_generator
 
 
 def get_confirmation_code(user) -> str:
     """Get confirmation code for User"""
-    return account_activation_token.make_token(user)
+    return default_token_generator.make_token(user)
 
 
 def check_confirmation_code(user, token) -> bool:
     """Check valid of confirmation code."""
-    return account_activation_token.check_token(user, token)
+    return default_token_generator.check_token(user, token)
 
 
 def send_email_with_confirmation_code(user):

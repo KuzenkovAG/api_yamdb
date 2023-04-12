@@ -1,12 +1,15 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework import status, viewsets
 from rest_framework.decorators import api_view
-from rest_framework.generics import CreateAPIView
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
 
+from . import permissions
 from . import serializers
 from . import utils
 
@@ -56,3 +59,26 @@ def receive_token(request):
     )
     token_serializer.is_valid()
     return Response(token_serializer.data, status=status.HTTP_200_OK)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    """Viewset for User."""
+    serializer_class = serializers.UsersSerializer
+    permission_classes = [IsAuthenticated & permissions.IsAdminPermission]
+    queryset = User.objects.all()
+    pagination_class = PageNumberPagination
+    lookup_field = 'username'
+
+
+class PersonalInformationView(RetrieveUpdateAPIView):
+    serializer_class = serializers.UsersSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = User.objects.all()
+
+    def get_object(self):
+        return get_object_or_404(User, id=self.request.user.id)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return serializers.UsersSerializer
+        return serializers.UserProfileSerializer

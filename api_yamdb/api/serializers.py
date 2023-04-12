@@ -5,31 +5,26 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from . import utils
+from .mixins import UsernameValidationMixin
 
 User = get_user_model()
 
 
-class UserCreateSerializer(serializers.ModelSerializer):
+class UserCreateSerializer(serializers.ModelSerializer,
+                           UsernameValidationMixin):
     """Serializer for signup user."""
     class Meta:
         fields = ('username', 'email')
         model = User
 
-    def validate_username(self, value):
-        if value == 'me':
-            raise serializers.ValidationError(
-                'Username should be not equal "me"'
-            )
-        return value
 
-
-class TokenObtainSerializer(serializers.ModelSerializer):
+class TokenObtainSerializer(serializers.Serializer):
     """Serializer for obtain token."""
+    username = serializers.CharField(max_length=150, required=True)
     confirmation_code = serializers.CharField(max_length=256, required=True)
 
     class Meta:
         fields = ('username', 'confirmation_code')
-        model = User
 
     def validate_username(self, value):
         get_object_or_404(User, username=value)
@@ -42,16 +37,31 @@ class TokenObtainSerializer(serializers.ModelSerializer):
             )
         return value
 
-    def validate(self, attrs):
-        username = self.data.get('username')
-        confirmation_code = self.data.get('confirmation_code')
+    def validate(self, data):
+        username = data.get('username')
+        confirmation_code = data.get('confirmation_code')
         user = get_object_or_404(User, username=username)
         if not utils.check_confirmation_code(user, confirmation_code):
             raise serializers.ValidationError(
                 'Wrong confirmation code.'
             )
+        return data
 
 
 class TokenSerializer(serializers.Serializer):
     """Serializer for token."""
     token = serializers.CharField()
+
+
+class UsersSerializer(serializers.ModelSerializer, UsernameValidationMixin):
+    """Serializer for user."""
+    class Meta:
+        fields = (
+            'username', 'email', 'first_name', 'last_name', 'bio', 'role'
+        )
+        model = User
+
+
+class UserProfileSerializer(UsersSerializer):
+    """Serializer for user profile."""
+    role = serializers.CharField(read_only=True)

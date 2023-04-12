@@ -4,9 +4,9 @@ from django.core.validators import validate_email
 from django.db import models
 
 ROLES = (
-    ('u', 'user'),
-    ('m', 'moderator'),
-    ('a', 'admin'),
+    ('user', 'User'),
+    ('moderator', 'Moderator'),
+    ('admin', 'Admin'),
 )
 username_validator = UnicodeUsernameValidator()
 
@@ -33,4 +33,7 @@ class User(AbstractUser):
     )
 
     bio = models.TextField(blank=True, null=True)
-    role = models.CharField(max_length=32, choices=ROLES, default='u')
+    role = models.CharField(max_length=32, choices=ROLES, default='user')
+
+    class Meta:
+        ordering = ['-id']
