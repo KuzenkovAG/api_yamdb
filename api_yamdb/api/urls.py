@@ -3,11 +3,22 @@ from rest_framework.routers import SimpleRouter
 from rest_framework_simplejwt.views import TokenVerifyView
 
 from . import views
+from reviews.models import Titles
+
 
 router = SimpleRouter()
 router.register(r'users', views.UserViewSet, basename='Users')
 router.register(
-    r'titles/(?P<title_id>\d+)/reviews', views.ReviewViewSet, basename='reviews'
+    r'titles/(?P<title_id>\d+)/reviews',
+    views.ReviewViewSet,
+    basename='reviews'
+)
+router.register('categories', views.CategoriesViewSet)
+router.register('genres', views.GenresViewSet)
+router.register(
+    'titles',
+    views.TitlesViewSet,
+    basename=Titles
 )
 
 urlpatterns = [

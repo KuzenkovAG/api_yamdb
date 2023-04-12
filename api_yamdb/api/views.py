@@ -3,20 +3,49 @@ import json
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, mixins
 from rest_framework.decorators import api_view
-from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from . import permissions
 from . import serializers
 from . import utils
-from reviews.models import Title
+from reviews.models import Title, Categories, Genre, Titles
+
 
 User = get_user_model()
+
+
+class CategoriesViewSet(mixins.CreateModelMixin,
+                        mixins.ListModelMixin,
+                        mixins.DestroyModelMixin,
+                        viewsets.GenericViewSet):
+
+    queryset = Categories.objects.all()
+    serializer_class = serializers.CategorySerializer
+    permission_classes = []
+
+
+class GenresViewSet(mixins.CreateModelMixin,
+                    mixins.ListModelMixin,
+                    mixins.DestroyModelMixin,
+                    viewsets.GenericViewSet):
+
+    queryset = Genre.objects.all()
+    serializer_class = serializers.GenreSerializer
+    permission_classes = []
+
+
+class TitlesViewSet(viewsets.ModelViewSet):
+
+    queryset = Titles.objects.all()
+    serializer_class = serializers.TitleSerializer
+    permission_classes = []
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
