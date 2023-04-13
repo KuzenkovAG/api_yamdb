@@ -13,27 +13,15 @@ User = get_user_model()
 
 class CategorySerializer(serializers.ModelSerializer):
 
-    name = serializers.StringRelatedField()
-    slug = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='slug',
-    )
-
     class Meta:
-        fields = '__all__'
+        fields = ('name', 'slug')
         model = Categories
 
 
 class GenreSerializer(serializers.ModelSerializer):
 
-    name = serializers.StringRelatedField()
-    slug = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='slug',
-    )
-
     class Meta:
-        fields = '__all__'
+        fields = ('name', 'slug')
         model = Genre
 
 
