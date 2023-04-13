@@ -39,7 +39,7 @@ class GenresViewSet(mixins.CreateModelMixin,
 
     queryset = Genre.objects.all()
     serializer_class = serializers.GenreSerializer
-    permission_classes = []
+    permission_classes = [permissions.IsAuthorPermission]
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
