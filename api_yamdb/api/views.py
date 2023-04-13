@@ -8,8 +8,7 @@ from rest_framework.decorators import api_view
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly,
-                                        IsAdminUser)
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -29,7 +28,9 @@ class CategoriesViewSet(mixins.CreateModelMixin,
 
     queryset = Categories.objects.all()
     serializer_class = serializers.CategorySerializer
-    permission_classes = []
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
 
 
 class GenresViewSet(mixins.CreateModelMixin,
@@ -40,6 +41,8 @@ class GenresViewSet(mixins.CreateModelMixin,
     queryset = Genre.objects.all()
     serializer_class = serializers.GenreSerializer
     permission_classes = [permissions.IsAuthorPermission]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
@@ -83,7 +86,7 @@ def create_user(request):
 @api_view(['POST'])
 @csrf_exempt
 def receive_token(request):
-    """Receive token by confirmation code."""
+    """Receive token."""
     serializer = serializers.TokenObtainSerializer(data=request.data)
     if serializer.is_valid():
         user = get_object_or_404(User, username=request.data.get('username'))
@@ -96,15 +99,10 @@ def receive_token(request):
 class UserViewSet(viewsets.ModelViewSet):
     """Viewset for User."""
     serializer_class = serializers.UsersSerializer
-    permission_classes = [IsAuthenticated & (
-        permissions.IsAdminPermission | IsAdminUser
-    )]
+    permission_classes = [IsAuthenticated & permissions.IsAdminPermission]
     queryset = User.objects.all()
     pagination_class = PageNumberPagination
     lookup_field = 'username'
-    http_method_names = ['get', 'post', 'patch', 'delete']
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('username',)
 
 
 class PersonalInformationView(RetrieveUpdateAPIView):
