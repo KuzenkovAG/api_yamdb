@@ -8,7 +8,8 @@ from rest_framework.decorators import api_view
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
+                                        IsAuthenticatedOrReadOnly,
+                                        IsAdminUser)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -86,7 +87,7 @@ def create_user(request):
 @api_view(['POST'])
 @csrf_exempt
 def receive_token(request):
-    """Receive token."""
+    """Receive token by confirmation code."""
     serializer = serializers.TokenObtainSerializer(data=request.data)
     if serializer.is_valid():
         user = get_object_or_404(User, username=request.data.get('username'))
@@ -99,10 +100,15 @@ def receive_token(request):
 class UserViewSet(viewsets.ModelViewSet):
     """Viewset for User."""
     serializer_class = serializers.UsersSerializer
-    permission_classes = [IsAuthenticated & permissions.IsAdminPermission]
+    permission_classes = [IsAuthenticated & (
+        permissions.IsAdminPermission | IsAdminUser
+    )]
     queryset = User.objects.all()
     pagination_class = PageNumberPagination
     lookup_field = 'username'
+    http_method_names = ['get', 'post', 'patch', 'delete']
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('username',)
 
 
 class PersonalInformationView(RetrieveUpdateAPIView):
