@@ -40,7 +40,7 @@ class GenresViewSet(mixins.CreateModelMixin,
 
     queryset = Genre.objects.all()
     serializer_class = serializers.GenreSerializer
-    permission_classes = [permissions.IsAuthorPermission]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
 
@@ -49,7 +49,7 @@ class TitlesViewSet(viewsets.ModelViewSet):
 
     queryset = Titles.objects.all()
     serializer_class = serializers.TitleSerializer
-    permission_classes = []
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
