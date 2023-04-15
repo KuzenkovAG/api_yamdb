@@ -59,7 +59,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     '''Working with reviews'''
 
     serializer_class = serializers.ReviewSerializer
-    permission_classes = [permissions.AdminModeratorAuthorPermission]
+    permission_classes = [permissions.AdminOrModeratorOrAuthorPermission]
 
     def get_queryset(self):
         title = get_object_or_404(models.Title, id=self.kwargs.get('title_id'))

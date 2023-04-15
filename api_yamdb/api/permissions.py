@@ -19,7 +19,7 @@ class IsAuthorPermission(permissions.BasePermission):
         return obj.author == request.user
 
 
-class AdminModeratorAuthorPermission(permissions.BasePermission):
+class AdminOrModeratorOrAuthorPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         return (
             request.method in permissions.SAFE_METHODS
