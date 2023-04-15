@@ -20,6 +20,8 @@ class IsAuthorPermission(permissions.BasePermission):
 
 
 class AdminOrModeratorOrAuthorPermission(permissions.BasePermission):
+    """Permission is granted to check the access rights
+      of the author, admin and moderator."""
     def has_permission(self, request, view):
         return (
             request.method in permissions.SAFE_METHODS
