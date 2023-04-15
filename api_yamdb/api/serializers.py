@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 from . import utils
 from .mixins import UsernameValidationMixin
-from reviews.models import Review, Categories, Genre, Titles
+from reviews import models
 
 User = get_user_model()
 
@@ -15,39 +15,42 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('name', 'slug')
-        model = Categories
+        model = models.Categories
 
 
 class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('name', 'slug')
-        model = Genre
+        model = models.Genre
 
 
 class TitleSerializer(serializers.ModelSerializer):
 
     genre = serializers.SlugRelatedField(
-        queryset=Genre.objects.all(), slug_field='slug'
+        queryset=models.Genre.objects.all(), slug_field='slug'
     )
 
     category = serializers.SlugRelatedField(
-        queryset=Categories.objects.all(), slug_field='slug'
+        queryset=models.Categories.objects.all(), slug_field='slug'
     )
+
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         fields = '__all__'
-        model = Titles
+        model = models.Title
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    '''Serializer for reviews of titles'''
 
     author = serializers.StringRelatedField(
         read_only=True
     )
 
     class Meta:
-        model = Review
+        model = models.Review
         fields = (
             'id', 'text', 'author', 'score', 'pub_date')
 
@@ -56,7 +59,8 @@ class ReviewSerializer(serializers.ModelSerializer):
             return data
         author = self.context.get('request').user
         title_id = self.context.get('view').kwargs.get('title_id')
-        if Review.objects.filter(author=author, title=title_id).exists():
+        if models.Review.objects.filter(author=author,
+                                        title=title_id).exists():
             raise serializers.ValidationError(
                 'Вы уже оставляли отзыв на это произведение'
             )
