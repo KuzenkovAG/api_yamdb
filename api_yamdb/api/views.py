@@ -27,6 +27,7 @@ class CategoriesViewSet(mixins.CreateModelMixin,
                         mixins.ListModelMixin,
                         mixins.DestroyModelMixin,
                         viewsets.GenericViewSet):
+    """Viewset for Category."""
 
     queryset = models.Categories.objects.all()
     serializer_class = serializers.CategorySerializer
@@ -39,6 +40,7 @@ class GenresViewSet(mixins.CreateModelMixin,
                     mixins.ListModelMixin,
                     mixins.DestroyModelMixin,
                     viewsets.GenericViewSet):
+    """Viewset for Genre."""
 
     queryset = models.Genre.objects.all()
     serializer_class = serializers.GenreSerializer
@@ -48,6 +50,7 @@ class GenresViewSet(mixins.CreateModelMixin,
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+    """Viewset for Title."""
 
     queryset = models.Title.objects.annotate(
         rating=Avg('reviews__score')).all().order_by('name')

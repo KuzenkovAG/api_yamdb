@@ -7,6 +7,7 @@ User = get_user_model()
 
 
 class Genre(models.Model):
+    """Model for genre of title."""
     name = models.CharField(max_length=256)
     slug = models.SlugField(max_length=50, unique=True)
 
@@ -18,6 +19,7 @@ class Genre(models.Model):
 
 
 class Categories(models.Model):
+    """Model for category of title."""
     name = models.CharField(max_length=256)
     slug = models.SlugField(max_length=50, unique=True)
 
@@ -29,6 +31,7 @@ class Categories(models.Model):
 
 
 class Title(models.Model):
+    """Model Title, with indicating genre and category."""
     name = models.CharField(max_length=256)
     year = models.DateTimeField('Год выпуска', auto_now_add=True)
     description = models.TextField()

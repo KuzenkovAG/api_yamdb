@@ -12,6 +12,7 @@ User = get_user_model()
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """Serializer for Category."""
 
     class Meta:
         fields = ('name', 'slug')
@@ -19,6 +20,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
+    """Serializer for Genre."""
 
     class Meta:
         fields = ('name', 'slug')
@@ -26,6 +28,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    """Serializer for Title."""
 
     genre = serializers.SlugRelatedField(
         queryset=models.Genre.objects.all(), slug_field='slug'
