@@ -50,7 +50,7 @@ class GenresViewSet(mixins.CreateModelMixin,
 class TitleViewSet(viewsets.ModelViewSet):
 
     queryset = models.Title.objects.annotate(
-        rating=Avg('reviews__score')).all()
+        rating=Avg('reviews__score')).all().order_by('name')
     serializer_class = serializers.TitleSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 

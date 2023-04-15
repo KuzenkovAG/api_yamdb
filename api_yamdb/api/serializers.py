@@ -122,7 +122,7 @@ class UserProfileSerializer(UsersSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    """Sterilizer Comment."""
+    """Serializer Comment."""
     review = serializers.SlugRelatedField(
         slug_field='text',
         read_only=True
