@@ -28,7 +28,7 @@ class Categories(models.Model):
         return self.name
 
 
-class Titles(models.Model):
+class Title(models.Model):
     name = models.CharField(max_length=256)
     year = models.DateTimeField('Год выпуска', auto_now_add=True)
     description = models.TextField()
@@ -49,6 +49,7 @@ class Titles(models.Model):
 
 
 class Review(models.Model):
+    '''A model for product reviews'''
     text = models.TextField(
         verbose_name='Tекст'
     )
@@ -77,7 +78,7 @@ class Review(models.Model):
         db_index=True
     )
     title = models.ForeignKey(
-        Titles,
+        Title,
         on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='Произведение',
