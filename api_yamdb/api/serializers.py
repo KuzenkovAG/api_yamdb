@@ -43,7 +43,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    '''Serializer for reviews of titles'''
+    """Serializer for reviews of titles."""
 
     author = serializers.StringRelatedField(
         read_only=True
@@ -119,3 +119,19 @@ class UsersSerializer(serializers.ModelSerializer, UsernameValidationMixin):
 class UserProfileSerializer(UsersSerializer):
     """Serializer for user profile."""
     role = serializers.CharField(read_only=True)
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    """Serializer Comment."""
+    review = serializers.SlugRelatedField(
+        slug_field='text',
+        read_only=True
+    )
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
+
+    class Meta:
+        fields = '__all__'
+        model = models.Comment

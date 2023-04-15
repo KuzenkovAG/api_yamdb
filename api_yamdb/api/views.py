@@ -50,13 +50,13 @@ class GenresViewSet(mixins.CreateModelMixin,
 class TitleViewSet(viewsets.ModelViewSet):
 
     queryset = models.Title.objects.annotate(
-        rating=Avg('reviews__score')).all()
+        rating=Avg('reviews__score')).all().order_by('name')
     serializer_class = serializers.TitleSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    '''Working with reviews'''
+    """Working with reviews."""
 
     serializer_class = serializers.ReviewSerializer
     permission_classes = [permissions.AdminOrModeratorOrAuthorPermission]
@@ -127,3 +127,20 @@ class PersonalInformationView(RetrieveUpdateAPIView):
         if self.request.method == 'GET':
             return serializers.UsersSerializer
         return serializers.UserProfileSerializer
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    """Viewset for the Comment model."""
+    serializer_class = serializers.CommentSerializer
+    permission_classes = [permissions.AdminOrModeratorOrAuthorPermission]
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        review = get_object_or_404(models.Review,
+                                   id=self.kwargs.get('review_id'))
+        return review.comments.all()
+
+    def perform_create(self, serializer):
+        review = get_object_or_404(models.Review,
+                                   id=self.kwargs.get('review_id'))
+        serializer.save(author=self.request.user, review=review)

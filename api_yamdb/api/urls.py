@@ -20,6 +20,11 @@ router.register(
     views.TitleViewSet,
     basename=Title
 )
+router.register(
+    r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
+    views.CommentViewSet,
+    basename='comments'
+)
 
 urlpatterns = [
     path('v1/auth/signup/', views.create_user, name='sign_up'),
