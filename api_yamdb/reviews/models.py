@@ -26,9 +26,6 @@ class Categories(models.Model):
     class Meta:
         ordering = ('id',)
 
-    def __str__(self):
-        return self.name
-
 
 class Title(models.Model):
     """Model Title, with indicating genre and category."""
