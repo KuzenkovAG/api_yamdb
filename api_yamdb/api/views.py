@@ -3,13 +3,13 @@ import json
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import filters, status, viewsets, mixins
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly,
-                                        IsAdminUser)
+                                        IsAdminUser,
+                                        SAFE_METHODS)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Avg
@@ -23,36 +23,38 @@ from reviews import models
 User = get_user_model()
 
 
-class CategoriesViewSet(mixins.CreateModelMixin,
-                        mixins.ListModelMixin,
-                        mixins.DestroyModelMixin,
-                        viewsets.GenericViewSet):
+class CategoriesViewSet(viewsets.ModelViewSet):
+    """Viewset for Category."""
 
     queryset = models.Categories.objects.all()
     serializer_class = serializers.CategorySerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAdminOrReadPermission]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
 
 
-class GenresViewSet(mixins.CreateModelMixin,
-                    mixins.ListModelMixin,
-                    mixins.DestroyModelMixin,
-                    viewsets.GenericViewSet):
+class GenresViewSet(viewsets.ModelViewSet):
+    """Viewset for Genre."""
 
     queryset = models.Genre.objects.all()
     serializer_class = serializers.GenreSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAdminOrReadPermission]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+    """Viewset for Title."""
 
     queryset = models.Title.objects.annotate(
         rating=Avg('reviews__score')).all().order_by('name')
     serializer_class = serializers.TitleSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAdminOrReadPermission]
+
+    def get_serializer_class(self):
+        if self.request.method in SAFE_METHODS:
+            return serializers.ReadTitleSerializer
+        return serializers.TitleSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
