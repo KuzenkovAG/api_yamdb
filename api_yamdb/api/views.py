@@ -8,7 +8,6 @@ from rest_framework.decorators import api_view
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly,
                                         IsAdminUser,
                                         SAFE_METHODS)
 from rest_framework.response import Response
@@ -29,14 +28,9 @@ class CategoriesViewSet(viewsets.ModelViewSet):
 
     queryset = models.Categories.objects.all()
     serializer_class = serializers.CategorySerializer
-    permission_classes = [permissions.IsAdminUserOrReadOnly]
+    permission_classes = [permissions.IsAdminOrReadPermission]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
-
-    def get_permissions(self):
-        if self.request.user.is_staff:
-            return [IsAdminUser()]
-        return [permissions.IsAdminUserOrReadOnly()]
 
 
 class GenresViewSet(viewsets.ModelViewSet):
@@ -44,7 +38,7 @@ class GenresViewSet(viewsets.ModelViewSet):
 
     queryset = models.Genre.objects.all()
     serializer_class = serializers.GenreSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAdminOrReadPermission]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
 
@@ -55,7 +49,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = models.Title.objects.annotate(
         rating=Avg('reviews__score')).all().order_by('name')
     serializer_class = serializers.TitleSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAdminOrReadPermission]
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
