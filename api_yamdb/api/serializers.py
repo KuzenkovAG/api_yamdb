@@ -14,9 +14,6 @@ User = get_user_model()
 class CategorySerializer(serializers.ModelSerializer):
     """Serializer for Category."""
 
-    name = serializers.CharField(max_length=256)
-    # slug = serializers.CharField(max_length=50)
-
     class Meta:
         fields = ('name', 'slug')
         model = models.Categories
@@ -28,6 +25,18 @@ class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('name', 'slug')
         model = models.Genre
+
+
+class ReadTitleSerializer(serializers.ModelSerializer):
+    """Serializer for Title."""
+
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
+    rating = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        fields = '__all__'
+        model = models.Title
 
 
 class TitleSerializer(serializers.ModelSerializer):

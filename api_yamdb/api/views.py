@@ -9,7 +9,8 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly,
-                                        IsAdminUser)
+                                        IsAdminUser,
+                                        SAFE_METHODS)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Avg
@@ -55,6 +56,11 @@ class TitleViewSet(viewsets.ModelViewSet):
         rating=Avg('reviews__score')).all().order_by('name')
     serializer_class = serializers.TitleSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_serializer_class(self):
+        if self.request.method in SAFE_METHODS:
+            return serializers.ReadTitleSerializer
+        return serializers.TitleSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
