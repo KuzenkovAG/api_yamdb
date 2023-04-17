@@ -33,15 +33,14 @@ class Categories(models.Model):
 class Title(models.Model):
     """Model Title, with indicating genre and category."""
     name = models.CharField(max_length=256)
-    year = models.DateTimeField('Год выпуска', auto_now_add=True)
+    year = models.IntegerField()
     description = models.TextField()
-    genre = models.ForeignKey(
-        Genre, on_delete=models.SET_NULL,
-        related_name='genre', blank=True, null=True
+    genre = models.ManyToManyField(
+        Genre, related_name='titles'
     )
     category = models.ForeignKey(
         Categories, on_delete=models.SET_NULL,
-        related_name='category', blank=True, null=True
+        related_name='titles', blank=True, null=True
     )
 
     class Meta:
@@ -128,6 +127,7 @@ class Comment(models.Model):
 
     class Meta:
         verbose_name = 'Комментарий'
+        ordering = ('-pub_date',)
 
     def __str__(self):
         return self.text

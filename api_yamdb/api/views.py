@@ -3,7 +3,7 @@ import json
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import filters, status, viewsets, mixins
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -23,23 +23,22 @@ from reviews import models
 User = get_user_model()
 
 
-class CategoriesViewSet(mixins.CreateModelMixin,
-                        mixins.ListModelMixin,
-                        mixins.DestroyModelMixin,
-                        viewsets.GenericViewSet):
+class CategoriesViewSet(viewsets.ModelViewSet):
     """Viewset for Category."""
 
     queryset = models.Categories.objects.all()
     serializer_class = serializers.CategorySerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAdminUserOrReadOnly]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
 
+    def get_permissions(self):
+        if self.request.user.is_staff:
+            return [IsAdminUser()]
+        return [permissions.IsAdminUserOrReadOnly()]
 
-class GenresViewSet(mixins.CreateModelMixin,
-                    mixins.ListModelMixin,
-                    mixins.DestroyModelMixin,
-                    viewsets.GenericViewSet):
+
+class GenresViewSet(viewsets.ModelViewSet):
     """Viewset for Genre."""
 
     queryset = models.Genre.objects.all()
