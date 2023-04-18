@@ -1,9 +1,10 @@
 import json
 
+from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import filters, status, viewsets
+from rest_framework import filters, status, viewsets, exceptions
 from rest_framework.decorators import api_view
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -17,6 +18,7 @@ from django.db.models import Avg
 from . import permissions
 from . import serializers
 from . import utils
+from .filters import TitleFilter
 from reviews import models
 
 
@@ -25,31 +27,44 @@ User = get_user_model()
 
 class CategoriesViewSet(viewsets.ModelViewSet):
     """Viewset for Category."""
-
     queryset = models.Categories.objects.all()
     serializer_class = serializers.CategorySerializer
     permission_classes = [permissions.IsAdminOrReadPermission]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
+    lookup_field = 'slug'
+
+    def get_object(self):
+        if self.request.method != 'DELETE':
+            print(self.request.method)
+            raise exceptions.MethodNotAllowed(self.request.method)
+        return super().get_object()
 
 
 class GenresViewSet(viewsets.ModelViewSet):
     """Viewset for Genre."""
-
     queryset = models.Genre.objects.all()
     serializer_class = serializers.GenreSerializer
     permission_classes = [permissions.IsAdminOrReadPermission]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
+    lookup_field = 'slug'
+
+    def get_object(self):
+        if self.request.method != 'DELETE':
+            print(self.request.method)
+            raise exceptions.MethodNotAllowed(self.request.method)
+        return super().get_object()
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     """Viewset for Title."""
-
     queryset = models.Title.objects.annotate(
         rating=Avg('reviews__score')).all().order_by('name')
     serializer_class = serializers.TitleSerializer
     permission_classes = [permissions.IsAdminOrReadPermission]
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
@@ -59,7 +74,6 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     """Working with reviews."""
-
     serializer_class = serializers.ReviewSerializer
     permission_classes = [permissions.AdminOrModeratorOrAuthorPermission]
 
