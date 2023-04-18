@@ -1,6 +1,6 @@
 import csv
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from reviews import models
 
@@ -10,23 +10,21 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         files = [
-            (models.Genre, 'genre.csv'),
-            (models.Categories, 'category.csv'),
-            (models.Title, 'titles.csv'),
-            (models.User, 'users.csv'),
-            (models.Review, 'review.csv'),
-            (models.Comment, 'comments.csv'),
+            (models.Genre, 'static/data/genre.csv'),
+            (models.Categories, 'static/data/category.csv'),
+            (models.Title, 'static/data/titles.csv'),
+            (models.Title, 'static/data/genre_title.csv'),
+            (models.User, 'static/data/users.csv'),
+            (models.Review, 'static/data/review.csv'),
+            (models.Comment, 'static/data/comments.csv'),
         ]
 
         for model, file in files:
-
-            with open(file) as csvfile:
+            object_model = model.objects.all()
+            object_model.delete()
+            with open(file, encoding='utf-8') as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
-                    try:
-                        object_model = model.objects.create(**row)
-                    except model.DoesNotExist:
-                        raise CommandError('Model does not exist.')
 
-                    object_model.opened = False
-                    object_model.save()
+                    object_model = model.objects.create(**row)
+                    print(object_model)
