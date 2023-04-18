@@ -45,6 +45,12 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+class TitleGenre(models.Model):
+    """Model for relationship ManyToMany between Title and Genre."""
+    title_id = models.ForeignKey(Title, on_delete=models.CASCADE)
+    genre_id = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
 
 class Review(models.Model):

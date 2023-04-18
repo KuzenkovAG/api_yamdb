@@ -13,7 +13,7 @@ class Command(BaseCommand):
             (models.Genre, 'static/data/genre.csv'),
             (models.Categories, 'static/data/category.csv'),
             (models.Title, 'static/data/titles.csv'),
-            (models.Title, 'static/data/genre_title.csv'),
+            (models.TitleGenre, 'static/data/genre_title.csv'),
             (models.User, 'static/data/users.csv'),
             (models.Review, 'static/data/review.csv'),
             (models.Comment, 'static/data/comments.csv'),
@@ -25,6 +25,5 @@ class Command(BaseCommand):
             with open(file, encoding='utf-8') as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
-
                     object_model = model.objects.create(**row)
                     print(object_model)
