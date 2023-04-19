@@ -25,7 +25,6 @@ User = get_user_model()
 
 class CategoriesViewSet(viewsets.ModelViewSet):
     """Viewset for Category."""
-
     queryset = models.Categories.objects.all()
     serializer_class = serializers.CategorySerializer
     permission_classes = [permissions.IsAdminOrReadPermission]
@@ -35,7 +34,6 @@ class CategoriesViewSet(viewsets.ModelViewSet):
 
 class GenresViewSet(viewsets.ModelViewSet):
     """Viewset for Genre."""
-
     queryset = models.Genre.objects.all()
     serializer_class = serializers.GenreSerializer
     permission_classes = [permissions.IsAdminOrReadPermission]
@@ -45,7 +43,6 @@ class GenresViewSet(viewsets.ModelViewSet):
 
 class TitleViewSet(viewsets.ModelViewSet):
     """Viewset for Title."""
-
     queryset = models.Title.objects.annotate(
         rating=Avg('reviews__score')).all().order_by('name')
     serializer_class = serializers.TitleSerializer
@@ -59,7 +56,6 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     """Working with reviews."""
-
     serializer_class = serializers.ReviewSerializer
     permission_classes = [permissions.AdminOrModeratorOrAuthorPermission]
 
