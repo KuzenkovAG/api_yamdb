@@ -57,7 +57,6 @@ class TitleSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     """Serializer for reviews of titles."""
-
     author = serializers.StringRelatedField(
         read_only=True
     )
