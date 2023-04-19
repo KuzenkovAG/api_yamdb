@@ -22,8 +22,12 @@ class Command(BaseCommand):
         for model, file in files:
             object_model = model.objects.all()
             object_model.delete()
+            rows_csv = []
             with open(file, encoding='utf-8') as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
-                    object_model = model.objects.create(**row)
-                    print(object_model)
+                    row_csv = model(**row)
+                    rows_csv.append(row_csv)
+
+            model.objects.bulk_create(rows_csv)
+            print(model.objects.all())
