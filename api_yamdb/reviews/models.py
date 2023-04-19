@@ -33,7 +33,7 @@ class Title(models.Model):
     year = models.IntegerField()
     description = models.TextField()
     genre = models.ManyToManyField(
-        Genre, related_name='titles'
+        Genre, related_name='titles', through="TitleGenre"
     )
     category = models.ForeignKey(
         Categories, on_delete=models.SET_NULL,
@@ -45,6 +45,12 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class TitleGenre(models.Model):
+    """Model for relationship ManyToMany between Title and Genre."""
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
 
 class Review(models.Model):
