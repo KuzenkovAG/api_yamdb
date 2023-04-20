@@ -53,22 +53,20 @@ class TitleSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     """Serializer for reviews of titles."""
-    author = serializers.StringRelatedField(
-        read_only=True
-    )
+    author = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = models.Review
-        fields = (
-            'id', 'text', 'author', 'score', 'pub_date')
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
 
     def validate(self, data):
         if not self.context.get('request').method == 'POST':
             return data
         author = self.context.get('request').user
         title_id = self.context.get('view').kwargs.get('title_id')
-        if models.Review.objects.filter(author=author,
-                                        title=title_id).exists():
+        review_exists = models.Review.objects.filter(
+            author=author, title=title_id).exists()
+        if review_exists:
             raise serializers.ValidationError(
                 'Вы уже оставляли отзыв на это произведение'
             )
