@@ -26,30 +26,27 @@ from reviews import models
 User = get_user_model()
 
 
-class CategoriesViewSet(mixins.CreateModelMixin,
-                        mixins.DestroyModelMixin,
-                        mixins.ListModelMixin,
-                        viewsets.GenericViewSet):
+class CategoryGenreBaseViewSet(mixins.CreateModelMixin,
+                               mixins.DestroyModelMixin,
+                               mixins.ListModelMixin,
+                               viewsets.GenericViewSet):
+    """Base viewset for category and genre."""
+    permission_classes = [permissions.IsAdminOrReadPermission]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
+    lookup_field = 'slug'
+
+
+class CategoriesViewSet(CategoryGenreBaseViewSet):
     """Viewset for Category."""
     queryset = models.Categories.objects.all()
     serializer_class = serializers.CategorySerializer
-    permission_classes = [permissions.IsAdminOrReadPermission]
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['name']
-    lookup_field = 'slug'
 
 
-class GenresViewSet(mixins.CreateModelMixin,
-                    mixins.DestroyModelMixin,
-                    mixins.ListModelMixin,
-                    viewsets.GenericViewSet):
+class GenresViewSet(CategoryGenreBaseViewSet):
     """Viewset for Genre."""
     queryset = models.Genre.objects.all()
     serializer_class = serializers.GenreSerializer
-    permission_classes = [permissions.IsAdminOrReadPermission]
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['name']
-    lookup_field = 'slug'
 
 
 class TitleViewSet(viewsets.ModelViewSet):
