@@ -6,25 +6,25 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 User = get_user_model()
 
 
-class Genre(models.Model):
-    """Model for genre of title."""
+class SlugGenreCategory(models.Model):
+    """Base Model for Genre and Categories."""
     name = models.CharField(max_length=256)
     slug = models.SlugField(max_length=50, unique=True)
 
     class Meta:
         ordering = ('id',)
+        abstract = True
 
     def __str__(self):
         return self.name
 
 
-class Categories(models.Model):
-    """Model for category of title."""
-    name = models.CharField(max_length=256)
-    slug = models.SlugField(max_length=50, unique=True)
+class Genre(SlugGenreCategory):
+    """Model for genre of title."""
 
-    class Meta:
-        ordering = ('id',)
+
+class Categories(SlugGenreCategory):
+    """Model for category of title."""
 
 
 class Title(models.Model):

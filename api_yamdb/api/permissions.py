@@ -4,13 +4,13 @@ from rest_framework import permissions
 class IsAdminPermission(permissions.BasePermission):
     """Check is admin."""
     def has_permission(self, request, view):
-        return request.user.role == 'admin'
+        return request.user.is_admin
 
 
 class IsModeratorPermission(permissions.BasePermission):
     """Check is moderator."""
     def has_permission(self, request, view):
-        return request.user.role == 'moderator'
+        return request.user.is_moderator
 
 
 class IsAuthorPermission(permissions.BasePermission):
@@ -32,8 +32,8 @@ class AdminOrModeratorOrAuthorPermission(permissions.BasePermission):
         return (
             request.method in permissions.SAFE_METHODS
             or obj.author == request.user
-            or request.user.role == 'moderator'
-            or request.user.role == 'admin'
+            or request.user.is_moderator
+            or request.user.is_admin
         )
 
 
@@ -41,11 +41,11 @@ class IsAdminOrReadPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         return (
             request.method in permissions.SAFE_METHODS
-            or (request.user.is_authenticated and request.user.role == 'admin')
+            or (request.user.is_authenticated and request.user.is_admin)
         )
 
     def has_object_permission(self, request, view, obj):
         return (
             request.method in permissions.SAFE_METHODS
-            or request.user.role == 'admin'
+            or request.user.is_admin
         )
