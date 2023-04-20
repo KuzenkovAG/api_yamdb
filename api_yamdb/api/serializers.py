@@ -1,6 +1,7 @@
 import re
 
 from django.contrib.auth import get_user_model
+from django.core.validators import validate_email
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
@@ -26,7 +27,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class ReadTitleSerializer(serializers.ModelSerializer):
-    """Serializer for Title."""
+    """Serializer for read Title."""
     genre = GenreSerializer(many=True)
     category = CategorySerializer()
     rating = serializers.IntegerField(read_only=True)
@@ -105,12 +106,27 @@ class TokenObtainSerializer(serializers.Serializer):
         return data
 
 
-class UserCreateSerializer(serializers.ModelSerializer,
-                           UsernameValidationMixin):
+class SignUpSerializer(serializers.Serializer, UsernameValidationMixin):
     """Serializer for signup user."""
+    email = serializers.CharField(max_length=254, validators=[validate_email])
+    username = serializers.CharField(max_length=150)
+
     class Meta:
         fields = ('username', 'email')
-        model = User
+
+    def validate(self, attrs):
+        username = attrs.get('username')
+        email = attrs.get('email')
+        if not User.objects.filter(username=username, email=email).exists():
+            if User.objects.filter(username=username).exists():
+                raise serializers.ValidationError(
+                    'Username already exists.'
+                )
+            if User.objects.filter(email=email).exists():
+                raise serializers.ValidationError(
+                    'Email already exists.'
+                )
+        return attrs
 
 
 class UsersSerializer(serializers.ModelSerializer, UsernameValidationMixin):
@@ -121,10 +137,10 @@ class UsersSerializer(serializers.ModelSerializer, UsernameValidationMixin):
         )
         model = User
 
-
-class UserProfileSerializer(UsersSerializer):
-    """Serializer for user profile."""
-    role = serializers.CharField(read_only=True)
+    def validate_role(self, value):
+        if not self.context.get('request').user.is_admin:
+            return self.context.get('request').user.role
+        return value
 
 
 class CommentSerializer(serializers.ModelSerializer):
