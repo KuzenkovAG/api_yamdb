@@ -7,12 +7,13 @@ User = get_user_model()
 
 
 class SlugGenreCategory(models.Model):
-    """General Model for Genre and Categories."""
+    """Base Model for Genre and Categories."""
     name = models.CharField(max_length=256)
     slug = models.SlugField(max_length=50, unique=True)
 
     class Meta:
         ordering = ('id',)
+        abstract = True
 
     def __str__(self):
         return self.name
