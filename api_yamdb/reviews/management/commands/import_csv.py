@@ -29,5 +29,10 @@ class Command(BaseCommand):
                     row_csv = model(**row)
                     rows_csv.append(row_csv)
 
-            model.objects.bulk_create(rows_csv)
-            print(model.objects.all())
+            created_objects = model.objects.bulk_create(rows_csv)
+            created_count = len(created_objects)
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f'({model}) Создано записей: {created_count}'
+                )
+            )

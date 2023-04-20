@@ -4,7 +4,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import exceptions, filters, status, viewsets
+from rest_framework import filters, status, viewsets, mixins
 from rest_framework.decorators import api_view
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -26,17 +26,15 @@ from reviews import models
 User = get_user_model()
 
 
-class CategoryGenreBaseViewSet(viewsets.ModelViewSet):
+class CategoryGenreBaseViewSet(mixins.CreateModelMixin,
+                               mixins.DestroyModelMixin,
+                               mixins.ListModelMixin,
+                               viewsets.GenericViewSet):
     """Base viewset for category and genre."""
     permission_classes = [permissions.IsAdminOrReadPermission]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
     lookup_field = 'slug'
-
-    def get_object(self):
-        if self.request.method != 'DELETE':
-            raise exceptions.MethodNotAllowed(self.request.method)
-        return super().get_object()
 
 
 class CategoriesViewSet(CategoryGenreBaseViewSet):
