@@ -56,6 +56,84 @@ python manage.py runserver
 ```sh
 python manage.py import_csv
 ```
+##### Примеры нескольких запросов к нашему API:
+Получение пользователя по username
+```sh
+http://127.0.0.1:8000/api/v1/users/{username}/
+```
+```sh
+{
+"username": "string",
+"email": "user@example.com",
+"first_name": "string",
+"last_name": "string",
+"bio": "string",
+"role": "user"
+}
+```
+Добавление новой категории
+```sh
+http://127.0.0.1:8000/api/v1/categories/
+```
+```sh
+{
+  "name": "string",
+  "slug": "string"
+}
+```
+Удаление жанра
+```sh
+http://127.0.0.1:8000/api/v1/genres/{slug}/
+```
+Получение списка всех произведений
+```sh
+http://127.0.0.1:8000/api/v1/titles/
+```
+```sh
+{
+  "count": 0,
+  "next": "string",
+  "previous": "string",
+  "results": [
+    {
+      "id": 0,
+      "name": "string",
+      "year": 0,
+      "rating": 0,
+      "description": "string",
+      "genre": [
+        {
+          "name": "string",
+          "slug": "string"
+        }
+      ],
+      "category": {
+        "name": "string",
+        "slug": "string"
+      }
+    }
+  ]
+}
+```
+Добавление нового отзыва
+```sh
+http://127.0.0.1:8000/api/v1/genres/{slug}/
+```
+```sh
+{
+  "text": "string",
+  "score": 1
+}
+```
+Частичное обновление комментария к отзыву
+```sh
+http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/{review_id}/comments/{comment_id}/
+```
+```sh
+{
+  "text": "string"
+}
+```
 
 #### Все запросы к этому API хранятся в документации, которая станет доступна после запуска проекта по  адресу:
 

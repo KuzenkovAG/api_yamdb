@@ -6,7 +6,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 User = get_user_model()
 
 
-class SlugGenreCategory(models.Model):
+class BaseNameSlugModel(models.Model):
     """Base Model for Genre and Categories."""
     name = models.CharField(max_length=256)
     slug = models.SlugField(max_length=50, unique=True)
@@ -19,11 +19,11 @@ class SlugGenreCategory(models.Model):
         return self.name
 
 
-class Genre(SlugGenreCategory):
+class Genre(BaseNameSlugModel):
     """Model for genre of title."""
 
 
-class Categories(SlugGenreCategory):
+class Categories(BaseNameSlugModel):
     """Model for category of title."""
 
 
@@ -64,7 +64,7 @@ class Review(models.Model):
         related_name='reviews',
         verbose_name='Aвтор'
     )
-    score = models.PositiveIntegerField(
+    score = models.PositiveSmallIntegerField(
         verbose_name='Oценка',
         validators=[
             MinValueValidator(
