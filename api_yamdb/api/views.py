@@ -4,9 +4,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import exceptions, filters, status, viewsets
-from rest_framework.decorators import api_view
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework import filters, status, viewsets, mixins
+from rest_framework.decorators import action, api_view
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (
     IsAuthenticated,
@@ -26,17 +25,15 @@ from reviews import models
 User = get_user_model()
 
 
-class CategoryGenreBaseViewSet(viewsets.ModelViewSet):
+class CategoryGenreBaseViewSet(mixins.CreateModelMixin,
+                               mixins.DestroyModelMixin,
+                               mixins.ListModelMixin,
+                               viewsets.GenericViewSet):
     """Base viewset for category and genre."""
     permission_classes = [permissions.IsAdminOrReadPermission]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
     lookup_field = 'slug'
-
-    def get_object(self):
-        if self.request.method != 'DELETE':
-            raise exceptions.MethodNotAllowed(self.request.method)
-        return super().get_object()
 
 
 class CategoriesViewSet(CategoryGenreBaseViewSet):
@@ -81,18 +78,14 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
-def create_user(request):
-    """User creation and send confirmation code by mail."""
-    username = request.data.get('username')
-    email = request.data.get('email')
-    if not User.objects.filter(username=username, email=email).exists():
-        serializer = serializers.UserCreateSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-        else:
-            return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    user = get_object_or_404(User, username=username)
+def send_confirmation_mail(request):
+    """Send confirmation mail. If user not exist, create user."""
+    serializer = serializers.SignUpSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    user, _ = User.objects.get_or_create(
+        username=request.data.get('username'),
+        email=request.data.get('email')
+    )
     utils.send_email_with_confirmation_code(user)
     return Response(request.data, status=status.HTTP_200_OK)
 
@@ -102,12 +95,11 @@ def create_user(request):
 def receive_token(request):
     """Receive token by confirmation code."""
     serializer = serializers.TokenObtainSerializer(data=request.data)
-    if serializer.is_valid():
-        user = get_object_or_404(User, username=request.data.get('username'))
-        token = RefreshToken.for_user(user)
-        json_data = json.dumps({'token': str(token.access_token)})
-        return Response(json_data, status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    serializer.is_valid(raise_exception=True)
+    user = get_object_or_404(User, username=request.data.get('username'))
+    token = RefreshToken.for_user(user)
+    json_data = json.dumps({'token': str(token.access_token)})
+    return Response(json_data, status=status.HTTP_200_OK)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -123,20 +115,20 @@ class UserViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
 
-
-class PersonalInformationView(RetrieveUpdateAPIView):
-    """Update personal information of User."""
-    serializer_class = serializers.UsersSerializer
-    permission_classes = [IsAuthenticated]
-    queryset = User.objects.all()
-
-    def get_object(self):
-        return get_object_or_404(User, id=self.request.user.id)
-
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return serializers.UsersSerializer
-        return serializers.UserProfileSerializer
+    @action(
+        detail=False,
+        methods=['get', 'patch'],
+        permission_classes=[IsAuthenticated, ]
+    )
+    def me(self, request):
+        user = get_object_or_404(User, id=request.user.id)
+        if request.method == 'GET':
+            serializer = self.get_serializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = self.get_serializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -146,11 +138,11 @@ class CommentViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
-        review = get_object_or_404(models.Review,
-                                   id=self.kwargs.get('review_id'))
+        review = get_object_or_404(
+            models.Review, id=self.kwargs.get('review_id'))
         return review.comments.all()
 
     def perform_create(self, serializer):
-        review = get_object_or_404(models.Review,
-                                   id=self.kwargs.get('review_id'))
+        review = get_object_or_404(
+            models.Review, id=self.kwargs.get('review_id'))
         serializer.save(author=self.request.user, review=review)

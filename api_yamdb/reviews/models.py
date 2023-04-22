@@ -6,25 +6,25 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 User = get_user_model()
 
 
-class Genre(models.Model):
-    """Model for genre of title."""
+class BaseNameSlugModel(models.Model):
+    """Base Model for Genre and Categories."""
     name = models.CharField(max_length=256)
     slug = models.SlugField(max_length=50, unique=True)
 
     class Meta:
         ordering = ('id',)
+        abstract = True
 
     def __str__(self):
         return self.name
 
 
-class Categories(models.Model):
-    """Model for category of title."""
-    name = models.CharField(max_length=256)
-    slug = models.SlugField(max_length=50, unique=True)
+class Genre(BaseNameSlugModel):
+    """Model for genre of title."""
 
-    class Meta:
-        ordering = ('id',)
+
+class Categories(BaseNameSlugModel):
+    """Model for category of title."""
 
 
 class Title(models.Model):
@@ -33,7 +33,7 @@ class Title(models.Model):
     year = models.IntegerField()
     description = models.TextField()
     genre = models.ManyToManyField(
-        Genre, related_name='titles'
+        Genre, related_name='titles', through="TitleGenre"
     )
     category = models.ForeignKey(
         Categories, on_delete=models.SET_NULL,
@@ -45,6 +45,12 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class TitleGenre(models.Model):
+    """Model for relationship ManyToMany between Title and Genre."""
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
 
 class Review(models.Model):
