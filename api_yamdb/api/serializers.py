@@ -26,17 +26,6 @@ class GenreSerializer(serializers.ModelSerializer):
         model = models.Genre
 
 
-class ReadTitleSerializer(serializers.ModelSerializer):
-    """Serializer for read Title."""
-    genre = GenreSerializer(many=True)
-    category = CategorySerializer()
-    rating = serializers.IntegerField(read_only=True)
-
-    class Meta:
-        fields = '__all__'
-        model = models.Title
-
-
 class TitleSerializer(serializers.ModelSerializer):
     """Serializer for Title."""
     genre = serializers.SlugRelatedField(
@@ -50,6 +39,12 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = models.Title
+
+
+class ReadTitleSerializer(TitleSerializer):
+    """Serializer for read Title."""
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -117,15 +112,16 @@ class SignUpSerializer(serializers.Serializer, UsernameValidationMixin):
     def validate(self, attrs):
         username = attrs.get('username')
         email = attrs.get('email')
-        if not User.objects.filter(username=username, email=email).exists():
-            if User.objects.filter(username=username).exists():
-                raise serializers.ValidationError(
-                    'Username already exists.'
-                )
-            if User.objects.filter(email=email).exists():
-                raise serializers.ValidationError(
-                    'Email already exists.'
-                )
+        if User.objects.filter(username=username, email=email).exists():
+            return attrs
+        if User.objects.filter(username=username).exists():
+            raise serializers.ValidationError(
+                'Username already exists.'
+            )
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError(
+                'Email already exists.'
+            )
         return attrs
 
 
