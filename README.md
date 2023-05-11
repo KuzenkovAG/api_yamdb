@@ -1,4 +1,4 @@
-# Групповой проект Яндекс Практикум (Спринт 10)
+# YaMDb оценка и рейтинг произведений
 ## _Выполнили:_
 ### _[Кузенков Алексей][df1] - разработчик 1-Teamlead_
 ### _[Синюк Олег][df3] - разработчик 2_
@@ -142,7 +142,6 @@ http://127.0.0.1:8000/api/v1/titles/{title_id}/reviews/{review_id}/comments/{com
 http://127.0.0.1:8000/redoc/
 ```
 
-**Учебный проект**
 
    [df1]: <https://github.com/KuzenkovAG>
    [df2]: <https://github.com/NASTY-SMIT>
