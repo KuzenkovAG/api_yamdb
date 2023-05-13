@@ -29,6 +29,7 @@ git clone git@github.com:KuzenkovAG/api_yamdb.git
 Установите и активируйте виртуальное окружение:
 
 ```sh
+cd api_yamdb/
 python -m venv venv
 source venv/Scripts/activate
 ```
@@ -42,13 +43,13 @@ pip install -r requirements.txt
 Примените миграции:
 
 ```sh
-python manage.py migrate
+python api_yamdb/manage.py migrate
 ```
 
 Запустите проект:
 
 ```sh
-python manage.py runserver
+python api_yamdb/manage.py runserver
 ```
 
 заполните тестовые данные:
