@@ -55,7 +55,7 @@ python api_yamdb/manage.py runserver
 заполните тестовые данные:
 
 ```sh
-python manage.py import_csv
+python api_yamdb/manage.py import_csv
 ```
 ##### Примеры нескольких запросов к нашему API:
 Получение пользователя по username
